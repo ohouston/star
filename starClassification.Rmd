@@ -1,0 +1,94 @@
+---
+title: "Star Classification"
+author: "Ottia Houston"
+date: "8/2/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Our goal is to be able to predict star types based on temperature, luminosity, radius, and more. We want to prove that stars follow the HR-Diagram.
+
+Thos data set was created using several equations on 240 stars from across the internet. 
+
+This dataset was provided by Deepraj Baidya on Kaggle.
+
+
+## Prepping the data
+
+```{r, include=FALSE}
+# install libraries
+library(cluster)
+library(tidyverse)
+library(factoextra)
+
+#load data
+starData <- read_csv("6class.csv")
+
+#renaming
+starData <- rename(starData, tempK = `Temperature (K)`, luminosity = `Luminosity(L/Lo)`, radius = `Radius(R/Ro)`,starType = `Star type`, starColor = `Star color`, specClass = `Spectral Class`, absMagMv = `Absolute magnitude(Mv)`)
+```
+
+looking at the observations
+```{r}
+head(starData)
+class(starData$starType)
+class(starData$starColor)
+```
+
+Based on the information we have to change the star type from a numeric to a factor.
+
+Brown Dwarf -> Star Type = 0
+
+Red Dwarf -> Star Type = 1
+
+White Dwarf-> Star Type = 2
+
+Main Sequence -> Star Type = 3
+
+Supergiant -> Star Type = 4
+
+
+But I am going to make a new dataset which gets rid of the factor variables, hehe. I chose to do this because looking at the HR model, I think that using the k-means would be the best. it seems that luminosity, temperture, and the rest is important to that. Also since I want to use a unsupervised model, I do not want a Y.
+```{r}
+starDataUp <- starData %>%
+  select(-specClass, -starType, -starColor)
+```
+
+
+## Now time for the machine learning!
+
+I think for the k, I am going to use 5 since we have six star types.
+```{r}
+set.seed(1) # for reproduction
+
+m = 6 # the means clustering that I would like
+km = kmeans(starDataUp, centers = m)
+```
+
+#looking at the data
+
+```{r}
+km
+```
+
+Now to look at it visually
+
+```{r}
+fviz_cluster(km, data = starDataUp, geom = "point", stand = FALSE)
+```
+
+
+
+
+
+
+
+
+
+
+
